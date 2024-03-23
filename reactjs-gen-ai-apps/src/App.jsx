@@ -1,63 +1,58 @@
+import { Outlet, createBrowserRouter, RouterProvider } from "react-router-dom";
+import { withAuthenticator } from "@aws-amplify/ui-react";
+import { useEffect, useState } from "react";
 
-import { Outlet, createBrowserRouter, RouterProvider } from "react-router-dom"
-import { withAuthenticator } from '@aws-amplify/ui-react'
-import { useEffect, useState } from "react"
-
-import './App.css'
-import Menu from "./Menu"
-import Layout from './Layout'
-import Llm from './LLM'
-import Chat from "./Chat"
+import "./App.css";
+import Menu from "./Menu";
+import Layout from "./Layout";
+import Llm from "./LLM";
+import Chat from "./Chat";
 import { getModel } from "./llmLib";
-import BedrockKBAndGenerate from "./BedrockKBAndGenerate"
-import BedrockKBRetrieve from "./BedrockKBRetrieve"
+import BedrockKBAndGenerate from "./BedrockKBAndGenerate";
+import BedrockKBRetrieve from "./BedrockKBRetrieve";
 
-import BedrockAgent from "./BedrockAgent"
-
+import BedrockAgent from "./BedrockAgent";
 
 const App = ({ signOut, user }) => {
-  const [llm, setllm] = useState({}) 
-  
+  const [llm, setllm] = useState({});
+
   useEffect(() => {
-    if (user?.userId){
-      getModel().then(model => setllm(model))
+    if (user?.userId) {
+      getModel().then((model) => setllm(model));
     }
-  }, [user])
-
-
+  }, [user]);
 
   const router = createBrowserRouter([
-
     {
       path: "/",
       errorElement: <div>something went wrong!</div>,
-      element: <Struct signOut={signOut}  {...user} />,
+      element: <Struct signOut={signOut} {...user} />,
       children: [
         { path: "llm", element: <Llm llm={llm} /> },
         { path: "chat", element: <Chat llm={llm} /> },
-        { path: "retrieveandgenerate", element: <BedrockKBAndGenerate llm={llm} /> },
+        {
+          path: "retrieveandgenerate",
+          element: <BedrockKBAndGenerate llm={llm} />,
+        },
         { path: "retrieve", element: <BedrockKBRetrieve llm={llm} /> },
         { path: "bedrockagent", element: <BedrockAgent llm={llm} /> },
+      ],
+    },
+  ]);
 
-      ]
-    }
-  ])
+  return <RouterProvider router={router} />;
+};
 
-  return (<RouterProvider router={router} />)
-}
-
-const Struct = ({ signOut, ...user }) =>
-  [
-    <Menu key={1} signOut={signOut} {...user}></Menu>,
-    <Layout key={2} ></Layout>
-  ]
-
+const Struct = ({ signOut, ...user }) => [
+  <Menu key={1} signOut={signOut} {...user}></Menu>,
+  <Layout key={2}></Layout>,
+];
 
 // Disable sign-up in withAuthenticator
 
-/// The withAuthenticator HOC injects authentication props and handles the authentication flow. 
-/// By passing {hideSignUp: true}, it will hide the sign-up option and only show sign-in. 
+/// The withAuthenticator HOC injects authentication props and handles the authentication flow.
+/// By passing {hideSignUp: true}, it will hide the sign-up option and only show sign-in.
 
 export default withAuthenticator(App, {
-  hideSignUp: true
-})
+  hideSignUp: true,
+});
